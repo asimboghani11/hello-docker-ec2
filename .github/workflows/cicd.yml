@@ -1,38 +1,26 @@
-name: CI/CD Pipeline - Docker to EC2
+name: CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main   # jab bhi main branch pe push hoga, pipeline chalega
+    branches: [ "main" ]
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build Docker Image
-      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/hello-docker-ec2:latest .
-
-    - name: Push Docker Image
-      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/hello-docker-ec2:latest
-
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ec2-user   # agar aap Ubuntu AMI use kar rahe ho to yeh 'ubuntu' hoga
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/hello-docker-ec2:latest
-          docker stop app || true
-          docker rm app || true
-          docker run -d -p 3000:3000 --name app ${{ secrets.DOCKERHUB_USERNAME }}/hello-docker-ec2:latest
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: asimboghani1/docker-cicd-app:latest
