@@ -3,3 +3,4 @@ test build
 deploy test
 trigger build
 cicd test run
+cicd test run
