@@ -23,5 +23,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: asimboghani1/docker-cicd-app:latest
+          tags: asimboghani1/my-html-app:latest
+
 
